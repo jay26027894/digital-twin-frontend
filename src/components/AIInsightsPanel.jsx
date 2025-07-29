@@ -58,7 +58,16 @@ const AIInsightsPanel = ({
               </div>
               <div className="flex-1">
                 <pre className="whitespace-pre-wrap text-gray-700 text-sm leading-relaxed font-sans">
-                  {aiSuggestions}
+                  {Array.isArray(aiSuggestions)
+                    ? aiSuggestions.map((s, i) =>
+                        typeof s === 'string'
+                          ? s
+                          : s.text || JSON.stringify(s)
+                      ).join('\n\n')
+                    : typeof aiSuggestions === 'object'
+                      ? aiSuggestions.text || JSON.stringify(aiSuggestions)
+                      : aiSuggestions
+                  }
                 </pre>
               </div>
             </div>

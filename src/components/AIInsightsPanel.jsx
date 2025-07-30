@@ -214,6 +214,19 @@ const AIInsightsPanel = ({
           <p className="text-sm text-gray-600 mb-6 max-w-md mx-auto leading-relaxed">
             Generate personalized recommendations based on your productivity patterns and digital twin data to optimize your daily routine.
           </p>
+          
+          {isLoading && (
+            <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="flex items-center justify-center gap-3 mb-2">
+                <RefreshCw className="animate-spin text-blue-500" size={16} />
+                <span className="text-sm font-medium text-blue-700">Processing your data...</span>
+              </div>
+              <p className="text-xs text-blue-600">
+                Please wait while AI analyzes your patterns and generates personalized suggestions
+              </p>
+            </div>
+          )}
+          
           <button
             onClick={onGenerate}
             disabled={isLoading}

@@ -19,13 +19,7 @@ DigiTwin is an AI-powered productivity assistant that transforms user activity d
 - **Modern UI/UX**: Responsive design using React, Vite, and Tailwind CSS.
 - **Modular Architecture**: Reusable React components with a clear separation of concerns.
 
-## Screenshots
 
-![Dashboard View](./screenshots/dashboard.png)
-*Dashboard displaying the AI Insights Panel and loading state.*
-
-![Action Plan Panel](./screenshots/action-plan.png)
-*Expandable action plan panel with personalized recommendations.*
 
 ## Tech Stack
 

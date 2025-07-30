@@ -1,34 +1,40 @@
-// Placeholder for cohere utility
-// Replace with real implementation if needed
+const VITE_COHERE_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 
-export async function getSuggestions(input) {
-  const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
-  if (!apiKey) {
-    throw new Error('Cohere API key not set in VITE_OPENAI_API_KEY');
+export const getSuggestions = async (prompt) => {
+  if (!VITE_COHERE_API_KEY) {
+    throw new Error("VITE_OPENAI_API_KEY is not set in .env file");
   }
-  if (!input || (typeof input !== 'string' && typeof input !== 'object')) {
-    throw new Error('Prompt (input) must be a non-empty string or object.');
-  }
-  const prompt = typeof input === 'string' ? input : JSON.stringify(input);
-  const response = await fetch('https://api.cohere.ai/v1/generate', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'command',
-      prompt,
-      max_tokens: 50,
-      temperature: 0.7
-    })
-  });
-  const data = await response.json();
-  if (!response.ok) {
-    console.error('Cohere API Error:', data);
-    throw new Error(data.message || JSON.stringify(data));
-  }
-  return data.generations || [];
-}
 
+  try {
+    const response = await fetch('https://api.cohere.ai/v1/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${VITE_COHERE_API_KEY}`,
+        'Cohere-Version': '2022-12-06',
+      },
+      body: JSON.stringify({
+        prompt: prompt,
+        max_tokens: 1000,
+        temperature: 0.7,
+        k: 0,
+        p: 0.75,
+        frequency_penalty: 0,
+        presence_penalty: 0,
+        stop_sequences: [],
+        return_likelihoods: 'NONE'
+      })
+    });
 
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`Cohere API error: ${errorData.message}`);
+    }
+
+    const data = await response.json();
+    return data.generations.map(gen => gen.text.trim());
+  } catch (error) {
+    console.error("Error fetching suggestions:", error);
+    return [];
+  }
+};

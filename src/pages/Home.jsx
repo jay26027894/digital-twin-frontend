@@ -261,7 +261,8 @@ function Home() {
       };
       
       // Replace with your actual AI call
-      const res = await getSuggestions(enhancedPersona);
+      const prompt = `Given the following user persona and productivity data, generate actionable AI suggestions for improvement.\nPersona: ${JSON.stringify(enhancedPersona, null, 2)}`;
+const res = await getSuggestions(prompt);
       setAiSuggestions(res);
       localStorage.setItem("aiSuggestions", JSON.stringify(res));
     } catch (error) {
@@ -511,43 +512,40 @@ function Home() {
 
         {/* AI Insights Tab */}
         {activeTab === 'insights' && (
-          <div className="space-y-6">
-            <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-8 rounded-xl">
-              <h2 className="text-2xl font-bold mb-2">AI-Powered Insights</h2>
-              <p>Powered by Cohere AI • Personalized recommendations based on your digital twin data</p>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <AIInsightsPanel
-                aiSuggestions={aiSuggestions}
-                onGenerate={generateSuggestions}
-                onClear={clearSuggestions}
-              />
-              
-              {/* Productivity Analysis */}
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Quick Stats</h3>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                    <span className="text-sm font-medium text-gray-700">Total Entries</span>
-                    <span className="text-blue-600 font-bold">{behaviors.length}</span>
-                  </div>
-                  <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-                    <span className="text-sm font-medium text-gray-700">Avg Productivity</span>
-                    <span className="text-green-600 font-bold">{metrics.avgProductivity || 'N/A'}/10</span>
-                  </div>
-                  <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
-                    <span className="text-sm font-medium text-gray-700">Tasks Completed</span>
-                    <span className="text-purple-600 font-bold">{tasks.filter(t => t.done).length}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+  <div className="space-y-6">
+    <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-8 rounded-xl">
+      <h2 className="text-2xl font-bold mb-2">AI-Powered Insights</h2>
+      <p>Powered by Cohere AI • Personalized recommendations based on your digital twin data</p>
+    </div>
+    <AIInsightsPanel
+      aiSuggestions={aiSuggestions}
+      onGenerate={generateSuggestions}
+      onClear={clearSuggestions}
+    />
+    {/* Productivity Analysis */}
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      <h3 className="text-lg font-semibold text-gray-800 mb-4">Quick Stats</h3>
+      <div className="space-y-4">
+        <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+          <span className="text-sm font-medium text-gray-700">Total Entries</span>
+          <span className="text-blue-600 font-bold">{behaviors.length}</span>
+        </div>
+        <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+          <span className="text-sm font-medium text-gray-700">Avg Productivity</span>
+          <span className="text-green-600 font-bold">{metrics.avgProductivity || 'N/A'}/10</span>
+        </div>
+        <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
+          <span className="text-sm font-medium text-gray-700">Tasks Completed</span>
+          <span className="text-purple-600 font-bold">{tasks.filter(t => t.done).length}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
       </div>
     </div>
   );
 }
+
 
 export default Home;

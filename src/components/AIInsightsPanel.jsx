@@ -1,5 +1,74 @@
-import React from 'react';
-import { Brain, Sparkles, RefreshCw, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { Brain, Sparkles, RefreshCw, X, ChevronDown, ChevronUp } from 'lucide-react';
+
+// Component to format text with markdown-like styling
+const FormattedText = ({ text }) => {
+  const formatText = (text) => {
+    const lines = text.split('\n');
+    return lines.map((line, index) => {
+      // Handle headers
+      if (line.startsWith('### ')) {
+        return (
+          <h3 key={index} className="text-base font-bold text-gray-800 mt-4 mb-2 first:mt-0">
+            {line.replace('### ', '')}
+          </h3>
+        );
+      }
+      if (line.startsWith('## ')) {
+        return (
+          <h2 key={index} className="text-lg font-bold text-gray-800 mt-4 mb-2 first:mt-0">
+            {line.replace('## ', '')}
+          </h2>
+        );
+      }
+      if (line.startsWith('# ')) {
+        return (
+          <h1 key={index} className="text-xl font-bold text-gray-800 mt-4 mb-2 first:mt-0">
+            {line.replace('# ', '')}
+          </h1>
+        );
+      }
+      
+      // Handle numbered lists
+      if (/^\d+\.\s/.test(line)) {
+        return (
+          <div key={index} className="ml-4 mb-2">
+            <span className="font-semibold text-purple-700">{line.match(/^\d+\./)[0]}</span>
+            <span className="ml-2 text-gray-700">{line.replace(/^\d+\.\s/, '')}</span>
+          </div>
+        );
+      }
+      
+      // Handle bullet points
+      if (line.startsWith('- ') || line.startsWith('• ')) {
+        return (
+          <div key={index} className="ml-4 mb-2 flex items-start">
+            <span className="text-purple-500 mr-2 mt-1">•</span>
+            <span className="text-gray-700">{line.replace(/^[-•]\s/, '')}</span>
+          </div>
+        );
+      }
+      
+      // Handle empty lines
+      if (line.trim() === '') {
+        return <div key={index} className="h-2"></div>;
+      }
+      
+      // Regular paragraphs
+      return (
+        <p key={index} className="text-gray-700 mb-2 leading-relaxed">
+          {line}
+        </p>
+      );
+    });
+  };
+
+  return (
+    <div className="text-sm">
+      {formatText(text)}
+    </div>
+  );
+};
 
 const AIInsightsPanel = ({ 
   aiSuggestions, 
@@ -8,6 +77,34 @@ const AIInsightsPanel = ({
   isLoading = false,
   title = "🔮 Personalized AI Suggestions"
 }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  // Process AI suggestions text with better debugging
+  const suggestionText = React.useMemo(() => {
+    console.log('Raw aiSuggestions:', aiSuggestions); // Debug log
+    
+    if (!aiSuggestions) return '';
+    
+    let processedText = '';
+    
+    if (Array.isArray(aiSuggestions)) {
+      processedText = aiSuggestions.map((s) => {
+        if (typeof s === 'string') return s;
+        if (typeof s === 'object') return s.text || s.content || JSON.stringify(s);
+        return String(s);
+      }).join('\n\n');
+    } else if (typeof aiSuggestions === 'object') {
+      processedText = aiSuggestions.text || aiSuggestions.content || aiSuggestions.message || JSON.stringify(aiSuggestions);
+    } else {
+      processedText = String(aiSuggestions);
+    }
+    
+    console.log('Processed text length:', processedText.length); // Debug log
+    console.log('Processed text preview:', processedText.substring(0, 200) + '...'); // Debug log
+    
+    return processedText;
+  }, [aiSuggestions]);
+
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
       <div className="flex items-center justify-between mb-4">
@@ -57,18 +154,41 @@ const AIInsightsPanel = ({
                 <Brain className="text-white" size={12} />
               </div>
               <div className="flex-1">
-                <pre className="whitespace-pre-wrap text-gray-700 text-sm leading-relaxed font-sans">
-                  {Array.isArray(aiSuggestions)
-                    ? aiSuggestions.map((s, i) =>
-                        typeof s === 'string'
-                          ? s
-                          : s.text || JSON.stringify(s)
-                      ).join('\n\n')
-                    : typeof aiSuggestions === 'object'
-                      ? aiSuggestions.text || JSON.stringify(aiSuggestions)
-                      : aiSuggestions
-                  }
-                </pre>
+                {/* Content container with conditional height */}
+                <div className={`transition-all duration-300 overflow-hidden ${
+                  isExpanded ? 'max-h-none' : 'max-h-[300px]'
+                }`}>
+                  <div className="pr-2">
+                    <FormattedText text={suggestionText} />
+                  </div>
+                </div>
+                
+                {/* Debug info and Expand/Collapse button */}
+                <div className="mt-3 pt-3 border-t border-purple-200">
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs text-gray-500">
+                      Content length: {suggestionText.length} characters
+                    </div>
+                    {suggestionText && suggestionText.length > 500 && (
+                      <button
+                        onClick={() => setIsExpanded(!isExpanded)}
+                        className="flex items-center gap-2 text-sm text-purple-600 hover:text-purple-700 transition-colors font-medium"
+                      >
+                        {isExpanded ? (
+                          <>
+                            <ChevronUp size={16} />
+                            Show Less
+                          </>
+                        ) : (
+                          <>
+                            <ChevronDown size={16} />
+                            Show More
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
